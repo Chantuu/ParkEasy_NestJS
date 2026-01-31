@@ -4,6 +4,7 @@ import { PaymentsService } from './payments.service';
 import { CurrentUser } from 'src/helper/decorators/current-user.decorator';
 import { User } from 'src/users/user.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PayDTO } from './DTOs/pay.dto';
 
 @Controller('api/payments')
 @UseGuards(AuthGuard)
@@ -26,5 +27,10 @@ export class PaymentsController {
   @Delete('paymentCard')
   async deletePaymentCard(@CurrentUser() user: User) {
     return await this._paymentsService.deletePaymentCard(user);
+  }
+
+  @Post('pay')
+  async pay(@Body() payDTO: PayDTO, @CurrentUser() user: User) {
+    return await this._paymentsService.pay(payDTO, user);
   }
 }
