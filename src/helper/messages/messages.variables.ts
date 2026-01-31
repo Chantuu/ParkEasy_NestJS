@@ -18,3 +18,6 @@ export const paymentCardAlreadyExistsErrorMessage =
 
 export const paymentCardNotExistsErrorMessage =
   'Payment card for current user does not exist!';
+
+export const insufficientMoneyErrorMessage =
+  'Current user does not have sufficient money to pay reservation!';
