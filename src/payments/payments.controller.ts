@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AddPaymentCardDTO } from './DTOs/add-payment-card.dto';
 import { PaymentsService } from './payments.service';
 import { CurrentUser } from 'src/helper/decorators/current-user.decorator';
@@ -9,6 +9,11 @@ import { AuthGuard } from 'src/auth/auth.guard';
 @UseGuards(AuthGuard)
 export class PaymentsController {
   constructor(private _paymentsService: PaymentsService) {}
+
+  @Get('paymentCard')
+  async getPaymentCard(@CurrentUser() user: User) {
+    return await this._paymentsService.getPaymentCard(user);
+  }
 
   @Post('paymentCard')
   async addPaymentCard(
