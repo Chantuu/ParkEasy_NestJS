@@ -21,25 +21,25 @@ export class PaymentCard {
   /**
    * Column containing encrypted card number.
    */
-  @Column()
+  @Column({ type: 'text', nullable: false })
   encryptedCardNumber: string;
 
   /**
    * Column containing card's expiration month.
    */
-  @Column()
+  @Column({ type: 'integer', nullable: false })
   cardExpirationMonth: number;
 
   /**
    * Column containing card's expiration year.
    */
-  @Column()
+  @Column({ type: 'integer', nullable: false })
   cardExpirationYear: number;
 
   /**
    * Column containing card's owner's full name.
    */
-  @Column()
+  @Column({ type: 'text', nullable: false })
   cardHolderName: string;
 
   @OneToOne(() => User, (user) => user.paymentCard, {
