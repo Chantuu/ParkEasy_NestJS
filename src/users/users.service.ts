@@ -24,7 +24,7 @@ export class UsersService {
     if (foundUser) {
       return this._userRepository.remove([foundUser]);
     } else {
-      throw new Error(
+      throw new BadRequestException(
         'No user was found with that id. Please input correct id!',
       );
     }
