@@ -42,6 +42,17 @@ export class UsersService {
   }
 
   /**
+   * This method is used to save updated user entity to update corresponding
+   * data in the database.
+   *
+   * @param user - Updated user entity to be saved.
+   * @returns Promise containing saved user entity
+   */
+  saveUpdatedUser(user: User) {
+    return this._userRepository.save(user);
+  }
+
+  /**
    * This method is used to create new user entity and save corresponding data
    * to the database.
    *
