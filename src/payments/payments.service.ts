@@ -18,9 +18,10 @@ export class PaymentsService {
     private _encryptionService: EncryptionService,
   ) {}
 
-  addPaymentCard(addPaymentCardDTO: AddPaymentCardDTO, user: User) {
+  async addPaymentCard(addPaymentCardDTO: AddPaymentCardDTO, user: User) {
     if (!user.paymentCard) {
       const currentDate = new Date(Date.now());
+      const rawCardNumber = addPaymentCardDTO.cardNumber;
 
       if (
         addPaymentCardDTO.cardExpirationMonth > currentDate.getMonth() &&
@@ -38,7 +39,20 @@ export class PaymentsService {
           user: user,
         });
 
-        return this._paymentCardRepository.save(newPaymentCard);
+        await this._paymentCardRepository.save(newPaymentCard);
+
+        const maskedCardNumber = `${'*'.repeat(rawCardNumber.length - 4)}${rawCardNumber.slice(-4)}`;
+        return {
+          success: true,
+          data: {
+            id: newPaymentCard.id,
+            userId: user.id,
+            cardNumber: maskedCardNumber,
+            cardExpirationMonth: addPaymentCardDTO.cardExpirationMonth,
+            cardExpirationYear: addPaymentCardDTO.cardExpirationYear,
+            cardHolderName: addPaymentCardDTO.cardHolderName,
+          },
+        };
       } else {
         throw new BadRequestException(invalidCardCredentialErrorMessage);
       }
