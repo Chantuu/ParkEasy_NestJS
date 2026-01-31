@@ -4,39 +4,67 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDTO } from 'src/auth/DTOs/register-user.dto';
 import { hashPassword } from 'src/helper/functions/hash-password.function';
+import { userIdErrorMessage } from 'src/helper/messages/messages.variables';
 
+/**
+ * This service is responsible for managing user entities.
+ */
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private _userRepository: Repository<User>,
   ) {}
 
-  findOne(userId: string) {
+  /**
+   * This method tries to find User entity based on it's id (UUID).
+   *
+   * @param userId - Id (UUID) of the desired user.
+   * @returns Promise containing user entity or null
+   */
+  findOne(userId: string): Promise<User | null> {
     return this._userRepository.findOne({ where: { id: userId } });
   }
 
-  findOneByEmail(userEmail: string) {
+  /**
+   * This method tries to find User entity based on it's email.
+   *
+   * @param userEmail - Email of the desired user.
+   * @returns Promise containing user entity or null
+   */
+  findOneByEmail(userEmail: string): Promise<User | null> {
     return this._userRepository.findOne({ where: { email: userEmail } });
   }
 
-  async create(registerUserDTO: RegisterUserDTO) {
+  /**
+   * This method is used to create new user entity and save corresponding data
+   * to the database.
+   *
+   * @param registerUserDTO - Validated user data.
+   * @returns Promise containing newly created user entity
+   */
+  async create(registerUserDTO: RegisterUserDTO): Promise<User> {
     const newUser = this._userRepository.create({
       fullName: registerUserDTO.fullName,
       email: registerUserDTO.email,
-      passwordHashed: await hashPassword(registerUserDTO.password),
+      passwordHashed: await hashPassword(registerUserDTO.password), // Hash plain text password
     });
     return this._userRepository.save(newUser);
   }
 
-  async delete(userId: string) {
+  /**
+   * This method is responsible for deleting user entity based on it's id (UUID).
+   *
+   * @param userId - Id (UUID) of the desired User Entity to be deleted.
+   * @returns Promise containing deleted user
+   */
+  async delete(userId: string): Promise<User> {
     const foundUser = await this.findOne(userId);
 
     if (foundUser) {
-      return this._userRepository.remove([foundUser]);
+      const deletedUsers = await this._userRepository.remove([foundUser]);
+      return deletedUsers[0];
     } else {
-      throw new BadRequestException(
-        'No user was found with that id. Please input correct id!',
-      );
+      throw new BadRequestException(userIdErrorMessage);
     }
   }
 }

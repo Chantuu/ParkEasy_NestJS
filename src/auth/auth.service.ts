@@ -3,12 +3,27 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { RegisterUserDTO } from './DTOs/register-user.dto';
 import { comparePassword } from 'src/helper/functions/compare-password.function';
+import {
+  emailAlreadyExistsErrorMessage,
+  userWithEmailPasswordNotExistsErrorMessage,
+} from 'src/helper/messages/messages.variables';
+import { User } from 'src/users/user.entity';
 
+/**
+ * This service is responsible for handling authentication logic.
+ */
 @Injectable()
 export class AuthService {
   constructor(private _usersService: UsersService) {}
 
-  async register(registerUserDTO: RegisterUserDTO) {
+  /**
+   * This method is responsible for registering user in the application, which uses UserService.
+   *
+   * @param registerUserDTO - Validated request body containing user data.
+   * @returns Newly registered user entity.
+   * @throws BadRequestException
+   */
+  async register(registerUserDTO: RegisterUserDTO): Promise<User> {
     const userExists = await this._usersService.findOneByEmail(
       registerUserDTO.email,
     );
@@ -16,26 +31,30 @@ export class AuthService {
     if (!userExists) {
       return this._usersService.create(registerUserDTO);
     } else {
-      throw new BadRequestException(
-        'User with that email already exists. Please type new email!',
-      );
+      throw new BadRequestException(emailAlreadyExistsErrorMessage);
     }
   }
 
-  async login(loginUserDTO: LoginUserDTO) {
+  /**
+   * This method is responsible for signing in user in the application, which uses UsersService.
+   *
+   * @param loginUserDTO - Validated request body containing user data.
+   * @returns Signed in user entity.
+   * @throws BadRequestException
+   */
+  async login(loginUserDTO: LoginUserDTO): Promise<User> {
     const userExists = await this._usersService.findOneByEmail(
       loginUserDTO.email,
     );
 
+    // If user with that email is found and password matches
     if (
       userExists &&
       (await comparePassword(loginUserDTO.password, userExists.passwordHashed))
     ) {
       return userExists;
     } else {
-      throw new BadRequestException(
-        'User does not exist with that email or password.',
-      );
+      throw new BadRequestException(userWithEmailPasswordNotExistsErrorMessage);
     }
   }
 }
