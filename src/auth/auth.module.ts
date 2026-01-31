@@ -8,6 +8,6 @@ import { AuthGuard } from './auth.guard';
   imports: [UsersModule],
   controllers: [AuthController],
   providers: [AuthService, AuthGuard],
-  exports: [AuthGuard],
+  exports: [UsersModule, AuthGuard],
 })
 export class AuthModule {}
