@@ -9,3 +9,9 @@ export const unauthorizedErrorMessage =
 
 export const userIdErrorMessage =
   'No user was found with that id. Please input correct id!';
+
+export const invalidCardCredentialErrorMessage =
+  'Given card details are invalid. Please give correct card credentials!';
+
+export const creditCardAlreadyExistsErrorMessage =
+  'Current user already has credit card!';
