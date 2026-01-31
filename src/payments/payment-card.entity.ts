@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/users/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 /**
  * This entity class represents user table in the database.
@@ -34,4 +41,10 @@ export class PaymentCard {
    */
   @Column()
   cardHolderName: string;
+
+  @OneToOne(() => User, (user) => user.paymentCard, {
+    nullable: true,
+  })
+  @JoinColumn()
+  user: User;
 }

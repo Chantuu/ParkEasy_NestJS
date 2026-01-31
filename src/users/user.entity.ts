@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { PaymentCard } from 'src/payments/payment-card.entity';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 /**
- * This entity class represents user table in the database
+ * This entity class represents user table in the database.
  */
 @Entity()
 export class User {
@@ -34,4 +35,7 @@ export class User {
    */
   @Column({ type: 'float', default: 20 })
   money: number;
+
+  @OneToOne(() => PaymentCard, (card) => card.user)
+  paymentCard: PaymentCard;
 }
