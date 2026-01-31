@@ -10,13 +10,13 @@ export class AddPaymentCardDTO {
   @IsNumber()
   @Min(1)
   @Max(12)
-  cardExpirationMonth: string;
+  cardExpirationMonth: number;
 
   @IsNumber()
   @Min(new Date().getFullYear(), {
     message: 'Expiration year must be the current year or later',
   })
-  cardExpirationYear: string;
+  cardExpirationYear: number;
 
   @IsNumber()
   @Min(3)
