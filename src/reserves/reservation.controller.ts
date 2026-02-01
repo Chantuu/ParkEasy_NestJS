@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/helper/decorators/current-user.decorator';
 import { User } from 'src/users/user.entity';
@@ -9,6 +9,10 @@ import { CreateReservationDTO } from './DTOs/create-reservation.dto';
 @UseGuards(AuthGuard)
 export class ReservationController {
   constructor(private _reservationService: ReservationService) {}
+  @Get()
+  async getCurrentActiveReservation(@CurrentUser() user: User) {
+    return await this._reservationService.getCurrentActiveReservation(user);
+  }
 
   @Post()
   async createReservation(
