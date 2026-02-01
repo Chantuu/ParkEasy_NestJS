@@ -14,7 +14,7 @@ export class ParkingSpot {
   @Column({ type: 'text', nullable: false })
   spotName: string;
 
-  @Column({ type: 'enum', enum: ParkingSpotStatus, nullable: false })
+  @Column({ type: 'simple-enum', enum: ParkingSpotStatus, nullable: false })
   status: string;
 
   @Column({ type: 'text', nullable: false, unique: true })
