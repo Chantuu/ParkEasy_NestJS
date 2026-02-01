@@ -12,6 +12,10 @@ export class ParkingService {
     private _parkingSpotRepository: Repository<ParkingSpot>,
   ) {}
 
+  getParkingSpotById(id: string) {
+    return this._parkingSpotRepository.findOne({ where: { id: id } });
+  }
+
   getAllParkingSpots() {
     return this._parkingSpotRepository.find({});
   }
