@@ -9,6 +9,7 @@ import { EncryptionModule } from './encryption/encryption.module';
 import { ParkingModule } from './parking/parking.module';
 import { ParkingSpot } from './parking/parking-spot.entity';
 import { ReservesModule } from './reserves/reservation.module';
+import { Reservation } from './reserves/reservation.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { ReservesModule } from './reserves/reservation.module';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'main.db',
-      entities: [User, PaymentCard, ParkingSpot],
+      entities: [User, PaymentCard, ParkingSpot, Reservation],
       synchronize: true,
     }),
     AuthModule,
