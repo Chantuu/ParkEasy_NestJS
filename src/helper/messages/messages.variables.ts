@@ -30,3 +30,6 @@ export const parkingSpotIdErrorMessage =
 
 export const activeReservationAlreadyExitsErrorMessage =
   'Reservation is already active for the current user!';
+
+export const activeReservationNotFoundErrorMessage =
+  'Current user does not have active reservation';
