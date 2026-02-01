@@ -1,7 +1,9 @@
 import { ParkingSpotStatus } from 'src/helper/enums/parking-spot-status.enum';
+import { Reservation } from 'src/reserves/reservation.entity';
 import {
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,4 +24,7 @@ export class ParkingSpot {
 
   @UpdateDateColumn()
   lastUpdated: Date;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.parkingSpot)
+  reservations: Reservation[];
 }

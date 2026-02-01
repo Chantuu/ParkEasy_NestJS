@@ -1,5 +1,12 @@
 import { PaymentCard } from 'src/payments/payment-card.entity';
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Reservation } from 'src/reserves/reservation.entity';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 /**
  * This entity class represents user table in the database.
@@ -38,4 +45,7 @@ export class User {
 
   @OneToOne(() => PaymentCard, (card) => card.user)
   paymentCard: PaymentCard;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservations: Reservation[];
 }
