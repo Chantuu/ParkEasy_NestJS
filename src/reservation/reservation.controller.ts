@@ -30,6 +30,19 @@ export class ReservationController {
   }
 
   /**
+   * This endpoint returns calculated price amount data of the active reservation for
+   * the current user, if it already has active reservation.
+   *
+   * @param currentUser - User currently signed in.
+   */
+  @Get('calculatePrice')
+  async caclulateReservationPrice(@CurrentUser() currentUser: User) {
+    const result =
+      await this._reservationService.calculateReservationPrice(currentUser);
+    return successResponse('success', result);
+  }
+
+  /**
    * This method returns all reservation entity list of the current user.
    *
    * @param currentUser - User currently signed in.
