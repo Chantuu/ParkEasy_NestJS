@@ -45,3 +45,6 @@ export const notEnoughMoneyErrorMessage =
 
 export const noAmountPresentErrorMessage =
   'No amount was given in request body, when user checked in the reservation. Please provide amount to deduct from user';
+
+export const envVariableNotDefinedErrorMessage =
+  'Environment variable is not defined!';
