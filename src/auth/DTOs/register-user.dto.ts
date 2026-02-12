@@ -21,10 +21,6 @@ export class RegisterUserDTO {
   /**
    * This property is used to check, that proper strong password is present in request body.
    */
-  @IsStrongPassword({
-    minLength: 8,
-    minNumbers: 1,
-    minSymbols: 1,
-  })
+  @IsStrongPassword()
   password: string;
 }
