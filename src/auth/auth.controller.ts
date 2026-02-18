@@ -39,7 +39,12 @@ export class AuthController {
 
     return successResponse(
       'success',
-      undefined,
+      {
+        id: registeredUser.id,
+        fullName: registeredUser.fullName,
+        email: registeredUser.email,
+        money: registeredUser.money,
+      },
       `Successfully registered user ${registeredUser.fullName}`,
     );
   }
@@ -56,13 +61,18 @@ export class AuthController {
     @Body() loginUserDTO: LoginUserDTO,
     @Session() session: Record<string, any>,
   ) {
-    const loggedinUser = await this._authService.login(loginUserDTO);
-    saveUserToSession(loggedinUser, session);
+    const loggedInUser = await this._authService.login(loginUserDTO);
+    saveUserToSession(loggedInUser, session);
 
     return successResponse(
       'success',
-      undefined,
-      `Successfully signed in user ${loggedinUser.fullName}`,
+      {
+        id: loggedInUser.id,
+        fullName: loggedInUser.fullName,
+        email: loggedInUser.email,
+        money: loggedInUser.money,
+      },
+      `Successfully signed in user ${loggedInUser.fullName}`,
     );
   }
 
@@ -78,8 +88,8 @@ export class AuthController {
   async getCurrentUser(@CurrentUser() currentUser: User) {
     return successResponse('success', {
       id: currentUser.id,
-      email: currentUser.email,
       fullName: currentUser.fullName,
+      email: currentUser.email,
       money: currentUser.money,
     });
   }
