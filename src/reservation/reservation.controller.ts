@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Sse,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/helper/decorators/current-user.decorator';
 import { User } from 'src/users/user.entity';
@@ -6,6 +14,7 @@ import { ReservationService } from './reservation.service';
 import { CreateReservationDTO } from './DTOs/create-reservation.dto';
 import { EditReservationDTO } from './DTOs/edit-reservation.dto';
 import { successResponse } from 'src/helper/functions/success-response.function';
+import { map } from 'rxjs';
 
 /**
  * This controller is used to manage routing for the reservation endpoints.
@@ -17,16 +26,25 @@ export class ReservationController {
   constructor(private _reservationService: ReservationService) {}
 
   /**
-   * This endpoint returns currently active reservation of the current user.
+   * This SSE endpoint continously streams data of the currently active reservation.
+   * If active reservation is available at the moment, this endpoint vill stream null.
    *
-   * @param currentUser - User currently signed in.
-   * @returns Promise containing active reservation data of the current user
+   * @returns Object containing data of the active reservation or null
    */
-  @Get()
-  async getCurrentActiveReservation(@CurrentUser() currentUser: User) {
-    const currentActiveReservation =
-      await this._reservationService.getCurrentActiveReservation(currentUser);
-    return successResponse('success', currentActiveReservation);
+  @Sse()
+  async getCurrentActiveReservationStream(@CurrentUser() currentUser: User) {
+    // const currentActiveReservation =
+    //   await this._reservationService.getCurrentActiveReservationStream(
+    //     currentUser,
+    //   );
+    // return successResponse('success', currentActiveReservation);
+    return (
+      await this._reservationService.getCurrentActiveReservation(currentUser)
+    ).pipe(
+      map((reservation) => {
+        return { data: reservation ?? JSON.stringify(null) };
+      }),
+    );
   }
 
   /**
@@ -43,15 +61,15 @@ export class ReservationController {
   }
 
   /**
-   * This method returns all reservation entity list of the current user.
+   * This method returns all inactive reservation entity list of the current user.
    *
    * @param currentUser - User currently signed in.
    * @returns Promise containing list of formatted reservation data
    */
-  @Get('all')
+  @Get('inactive')
   async getAllReservation(@CurrentUser() currentUser: User) {
     const userReservations =
-      await this._reservationService.getAllReservation(currentUser);
+      await this._reservationService.getInactiveReservation(currentUser);
     return successResponse('success', userReservations);
   }
 

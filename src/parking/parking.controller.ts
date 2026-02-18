@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Post,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -11,6 +12,7 @@ import { ParkingService } from './parking.service';
 import { parkingSpotsNotRegisteredErrorMessage } from 'src/helper/messages/messages.variables';
 import { SensorDataDTO } from './Dtos/sensor-data.dto';
 import { successResponse } from 'src/helper/functions/success-response.function';
+import { map } from 'rxjs';
 
 /**
  * This controller is responsible for routing and managing all endpoints related to the parking.
@@ -28,7 +30,7 @@ export class ParkingController {
    *
    * @returns Promise with response object containing all parking spot data.
    */
-  @Get('parkingSpots')
+  @Get('parkingSpots-old')
   async getAllParkingSpots() {
     const parkingSpotArray = await this._parkingService.getAllParkingSpots();
 
@@ -37,6 +39,21 @@ export class ParkingController {
     } else {
       throw new NotFoundException(parkingSpotsNotRegisteredErrorMessage);
     }
+  }
+
+  /**
+   * This SSE endpoint continously streams data of the currently available parking spot lists.
+   * If no parking spot is available at the moment, this endpoint vill stream empty list.
+   *
+   * @returns List containing data of the available parking spots or empty list
+   */
+  @Sse('parkingSpots')
+  stream() {
+    return this._parkingService.getParkingSpotStream().pipe(
+      map((parking) => {
+        return { data: parking };
+      }),
+    );
   }
 
   /**

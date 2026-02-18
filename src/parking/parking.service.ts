@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ParkingSpot } from './parking-spot.entity';
 import { Repository } from 'typeorm';
 import { ParkingSpotStatus } from 'src/helper/enums/parking-spot-status.enum';
+import { BehaviorSubject } from 'rxjs';
+import { ReservationStatus } from 'src/helper/enums/reservation-status.enum';
 
 /**
  * This service is used to handle main logic related to parking spots.
@@ -14,6 +16,30 @@ export class ParkingService {
     @InjectRepository(ParkingSpot)
     private _parkingSpotRepository: Repository<ParkingSpot>,
   ) {}
+
+  /**
+   * BehaviorSubject used to stream list of the ParkingSpot entities.
+   */
+  private _parkingSubject = new BehaviorSubject<ParkingSpot[]>([]);
+
+  /**
+   * This helper method is used to emit currently available parking spot data
+   * for sending it.
+   */
+  private async emitParkingSpot() {
+    const updatedParkingSpots = await this.getAllParkingSpots();
+    this._parkingSubject.next(updatedParkingSpots);
+  }
+
+  /**
+   * This special method is called on module initialization and is used
+   * to preload currently available parking spot data list to the client.
+   */
+  async onModuleInit() {
+    // Load existing parking data at startup
+    const latest = await this.getAllParkingSpots();
+    this._parkingSubject.next(latest);
+  }
 
   /**
    * This method tries to find one parking spot based on the specified id
@@ -35,7 +61,19 @@ export class ParkingService {
    * @returns Promise containing list of ParkingSlot Entities.
    */
   getAllParkingSpots() {
-    return this._parkingSpotRepository.find({});
+    return this._parkingSpotRepository.find({
+      relations: { reservations: true },
+    });
+  }
+
+  /**
+   * This method returns BehaviorSubject containing list of ParkingSpot entites
+   * as a Observabel to be sent by the SSE endpoint.
+   *
+   * @returns
+   */
+  getParkingSpotStream() {
+    return this._parkingSubject.asObservable();
   }
 
   /**
@@ -60,8 +98,18 @@ export class ParkingService {
 
       // If this parking spot entity exists
       if (persistedSpot) {
-        // Lock RESERVED status for sensor and reserve functionality integration
-        const isLocked = persistedSpot.status === ParkingSpotStatus.RESERVED;
+        const foundActiveReservation = persistedSpot.reservations.find(
+          (reservation) => {
+            return reservation.status === ReservationStatus.ACTIVE;
+          },
+        );
+
+        // Lock RESERVED status if current parking spot is still resserved and reservation for it exists
+        // and is active.
+        const isLocked =
+          persistedSpot.status === ParkingSpotStatus.RESERVED &&
+          foundActiveReservation &&
+          foundActiveReservation.status === ReservationStatus.ACTIVE;
 
         // Return changed parking spot data. If isLocked variable is true, sstatus property stays same
         return {
@@ -84,6 +132,25 @@ export class ParkingService {
       sensorId: updatedSpot.sensorId,
     }));
 
+    // Emit updated data to the BehaviorSubject
+    await this.emitParkingSpot();
+
     return formattedResponseData;
+  }
+
+  /**
+   * This method is used to update current status of the parking spot.
+   *
+   * @param parkingSpot - Desired parking spot to be updated.
+   * @param parkingStatus - Desired parking spot status to be set.
+   */
+  async updateParkingSpotStatus(
+    parkingSpot: ParkingSpot,
+    parkingStatus: ParkingSpotStatus,
+  ) {
+    const currentParkingSpot = parkingSpot;
+    currentParkingSpot.status = parkingStatus;
+    await this._parkingSpotRepository.save(currentParkingSpot);
+    await this.emitParkingSpot();
   }
 }

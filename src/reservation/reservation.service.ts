@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from './reservation.entity';
-import { Repository } from 'typeorm';
+import { Equal, Or, Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import {
   activeReservationAlreadyExitsErrorMessage,
@@ -23,6 +23,8 @@ import { ReservationStatus } from 'src/helper/enums/reservation-status.enum';
 import { EditReservationDTO } from './DTOs/edit-reservation.dto';
 import { ParkingSpotStatus } from 'src/helper/enums/parking-spot-status.enum';
 import { ConfigService } from '@nestjs/config';
+import { BehaviorSubject } from 'rxjs';
+import { ReturnFormattedReservationInterface } from 'src/helper/interfaces/return-active-reservation.interface';
 
 /**
  * This service is used to control reservation related logic.
@@ -37,6 +39,12 @@ export class ReservationService {
   ) {}
 
   /**
+   * BehaviorSubject used to stream active reservation data or null
+   */
+  private _activeReservationSubject =
+    new BehaviorSubject<ReturnFormattedReservationInterface | null>(null);
+
+  /**
    * This method formats reservation data for sending it as response data.
    *
    * @param reservation - Desired reservation entity to be formatted.
@@ -47,19 +55,18 @@ export class ReservationService {
     return {
       id: reservation.id,
       userId: currentUser.id,
-      parkingSpotId: reservation.parkingSpot.id,
+      parkingSpotName: reservation.parkingSpot.spotName,
       startTime: reservation.startTime,
       status: reservation.status,
+      ...(reservation.amount ? { amount: reservation.amount } : {}),
     };
   }
 
-  /**
-   * This method returns currently active reservation for the current user, if
-   * it has already activated reservation.
+  /** This method returns observable of the currently active reservation
+   * for the current user, if it has already activated reservation.
    *
    * @param currentUser - User currently signed in.
-   * @returns Promise containing formatted active reservation data
-   * @throws NotFoundException if current user does not have active reservation
+   * @returns Promise containing observable with the type formatted active reservation data or null
    */
   async getCurrentActiveReservation(currentUser: User) {
     const activeReservation = await this._reservationRepository.findOne({
@@ -68,10 +75,16 @@ export class ReservationService {
     });
 
     if (activeReservation) {
-      return this.formatReservationData(activeReservation, currentUser);
+      const formattedReservation = this.formatReservationData(
+        activeReservation,
+        currentUser,
+      );
+      this._activeReservationSubject.next(formattedReservation);
     } else {
-      throw new NotFoundException(activeReservationNotFoundErrorMessage);
+      this._activeReservationSubject.next(null);
     }
+
+    return this._activeReservationSubject.asObservable();
   }
 
   /**
@@ -128,23 +141,31 @@ export class ReservationService {
   }
 
   /**
-   * This method returns all reservations associated to current user,
+   * This method returns all inactive reservations associated to current user,
    * if they exist.
    *
    * @param currentUser - User currently signed in.
    * @returns Promise containing formatted reservation data list
    */
-  async getAllReservation(currentUser: User) {
+  async getInactiveReservation(currentUser: User) {
     const reservationEntityList = await this._reservationRepository.find({
-      where: { user: currentUser },
+      where: {
+        user: currentUser,
+        status: Or(
+          Equal(ReservationStatus.CANCELLED),
+          Equal(ReservationStatus.COMPLETED),
+        ),
+      },
       relations: { parkingSpot: true },
     });
 
     // If reservations exist for current user
     if (reservationEntityList.length) {
-      return reservationEntityList.map((reservationEntity) =>
-        this.formatReservationData(reservationEntity, currentUser),
-      );
+      return reservationEntityList
+        .map((reservationEntity) =>
+          this.formatReservationData(reservationEntity, currentUser),
+        )
+        .reverse();
     } else {
       throw new BadRequestException(reservationNotFoundErroMessage);
     }
@@ -175,8 +196,7 @@ export class ReservationService {
     );
 
     const parkingSpotHasActiveResevation =
-      currentParkingSpot?.status === ParkingSpotStatus.RESERVED ||
-      currentParkingSpot?.status === ParkingSpotStatus.RESERVED_CHECK;
+      currentParkingSpot?.status === ParkingSpotStatus.RESERVED;
     const parkingSpotIsFree =
       currentParkingSpot?.status === ParkingSpotStatus.FREE;
 
@@ -189,7 +209,11 @@ export class ReservationService {
       parkingSpotIsFree
     ) {
       // Update current parking spot to be reserved
-      currentParkingSpot.status = ParkingSpotStatus.RESERVED;
+      this._parkingService.updateParkingSpotStatus(
+        currentParkingSpot,
+        ParkingSpotStatus.RESERVED,
+      );
+
       const newReservation = this._reservationRepository.create({
         user: currentUser,
         parkingSpot: currentParkingSpot,
@@ -198,7 +222,14 @@ export class ReservationService {
 
       await this._reservationRepository.save(newReservation);
 
-      return this.formatReservationData(newReservation, currentUser);
+      const formattedNewReservation = this.formatReservationData(
+        newReservation,
+        currentUser,
+      );
+
+      this._activeReservationSubject.next(formattedNewReservation);
+
+      return formattedNewReservation;
     }
     // If current user does not have active reservation, while parking spot id is correct and
     // that parking spot does not have active reservation, but is taken
@@ -242,16 +273,28 @@ export class ReservationService {
   ) {
     // Check for active reservation existence
     const currentActiveReservation = await this._reservationRepository.findOne({
-      where: [{ user: currentUser, status: ReservationStatus.ACTIVE }],
+      where: [
+        { user: { id: currentUser.id }, status: ReservationStatus.ACTIVE },
+      ],
       relations: { parkingSpot: true },
     });
 
     // If active reservation exists
     if (currentActiveReservation) {
       currentActiveReservation.status = editReservationDTO.status;
-      currentActiveReservation.parkingSpot.status =
-        ParkingSpotStatus.RESERVED_CHECK;
+      const currentAmount = editReservationDTO.amount;
+
+      if (currentAmount) {
+        currentActiveReservation.amount = currentAmount;
+      }
+
+      await this._parkingService.updateParkingSpotStatus(
+        currentActiveReservation.parkingSpot,
+        ParkingSpotStatus.FREE,
+      );
+
       await this._reservationRepository.save(currentActiveReservation);
+      this._activeReservationSubject.next(null);
 
       return this.formatReservationData(currentActiveReservation, currentUser);
     } else {

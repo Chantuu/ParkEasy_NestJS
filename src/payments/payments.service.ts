@@ -15,6 +15,7 @@ import {
 import { PayDTO } from './DTOs/pay.dto';
 import { UsersService } from 'src/users/users.service';
 import { ReservationStatus } from 'src/helper/enums/reservation-status.enum';
+import { ReservationService } from 'src/reservation/reservation.service';
 
 @Injectable()
 export class PaymentsService {
@@ -23,6 +24,7 @@ export class PaymentsService {
     private _paymentCardRepository: Repository<PaymentCard>,
     private _encryptionService: EncryptionService,
     private _usersService: UsersService,
+    private _reservationService: ReservationService,
   ) {}
 
   /**
@@ -172,18 +174,14 @@ export class PaymentsService {
     }
   }
 
-  /**
-   *
-   * @param payDTO
-   * @param currentUser
-   */
+  //TODO: Create jsdoc documentation
   async pay(payDTO: PayDTO, currentUser: User) {
     const paymentCard = await this.returnPaymentCardofCurrentUser(currentUser);
 
     // If payment card exists
     if (paymentCard) {
       const responsePaymentTransactionData = {
-        paymentStatus: 'Completed',
+        paymentStatus: '',
         paidAmount: 0,
       };
 
@@ -191,19 +189,35 @@ export class PaymentsService {
       if (payDTO.reservationStatus === ReservationStatus.CANCELLED) {
         currentUser.money -= 1;
 
+        // Edit currently active reservation to be cancelled and perform payment
+        await this._reservationService.editActiveReservation(currentUser, {
+          status: payDTO.reservationStatus,
+          amount: 1,
+        });
         await this._usersService.saveUpdatedUser(currentUser);
 
+        // Update response object with relevant payment amount and status
         responsePaymentTransactionData.paidAmount = 1;
+        responsePaymentTransactionData.paymentStatus = payDTO.reservationStatus;
       }
+
       // If reservation was checked in by the user
       else if (payDTO.reservationStatus === ReservationStatus.COMPLETED) {
         // If amount is present in request body and user has enough money
         if (payDTO.amount && currentUser.money >= payDTO.amount) {
           currentUser.money -= payDTO.amount;
 
+          // Edit currently active reservation to be cancelled and perform payment
+          await this._reservationService.editActiveReservation(currentUser, {
+            status: payDTO.reservationStatus,
+            amount: payDTO.amount,
+          });
           await this._usersService.saveUpdatedUser(currentUser);
 
+          // Update response object with relevant payment amount and status
           responsePaymentTransactionData.paidAmount = payDTO.amount;
+          responsePaymentTransactionData.paymentStatus =
+            payDTO.reservationStatus;
         }
         // If amount is present in request body but user does not have enough money
         else if (payDTO.amount && currentUser.money < payDTO.amount) {
