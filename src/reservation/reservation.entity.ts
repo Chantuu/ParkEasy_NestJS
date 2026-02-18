@@ -43,6 +43,16 @@ export class Reservation {
   status: ReservationStatus;
 
   /**
+   * Column containing paid amount for the reservation with
+   * default being 0.
+   */
+  @Column({
+    type: 'float',
+    default: 0,
+  })
+  amount: number;
+
+  /**
    * Column containing User entity, which represents Many-To-One relationship.
    */
   @ManyToOne(() => User, (user) => user.reservations)
