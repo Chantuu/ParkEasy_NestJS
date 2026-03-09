@@ -57,4 +57,15 @@ export class AuthService {
       throw new BadRequestException(userWithEmailPasswordNotExistsErrorMessage);
     }
   }
+
+  /**
+   * This method is responsible for deleting current user in the application, which uses
+   * UsersService.
+   *
+   * @param userId - Id string of the desired user.
+   * @returns Returns recently deleted user.
+   */
+  deleteCurrentUser(userId: string) {
+    return this._usersService.deleteUser(userId);
+  }
 }
