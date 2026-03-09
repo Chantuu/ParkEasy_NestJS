@@ -19,7 +19,6 @@ import { map } from 'rxjs';
  * Whole controller is protected AuthGuard.
  */
 @Controller('api/parking')
-@UseGuards(AuthGuard)
 export class ParkingController {
   constructor(private _parkingService: ParkingService) {}
 
@@ -31,6 +30,7 @@ export class ParkingController {
    * @returns Promise with response object containing all parking spot data.
    */
   @Get('parkingSpots-old')
+  @UseGuards(AuthGuard)
   async getAllParkingSpots() {
     const parkingSpotArray = await this._parkingService.getAllParkingSpots();
 
@@ -48,6 +48,7 @@ export class ParkingController {
    * @returns List containing data of the available parking spots or empty list
    */
   @Sse('parkingSpots')
+  @UseGuards(AuthGuard)
   stream() {
     return this._parkingService.getParkingSpotStream().pipe(
       map((parking) => {
