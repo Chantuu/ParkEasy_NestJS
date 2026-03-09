@@ -1,3 +1,4 @@
+import { ReservationStatus } from 'src/helper/enums/reservation-status.enum';
 import { PaymentCard } from 'src/payments/payment-card.entity';
 import { Reservation } from 'src/reservation/reservation.entity';
 import {
@@ -42,6 +43,21 @@ export class User {
    */
   @Column({ type: 'float', default: 20 })
   money: number;
+
+  /**
+   * Getter method used to check if user has active reservation.
+   */
+  get getActiveReservation(): Reservation | null {
+    // If user has reservations, filter active ones and return the first one, otherwise return null
+    if (this.reservations) {
+      const activeReservations = this.reservations.filter(
+        (reservation) => reservation.status === ReservationStatus.ACTIVE,
+      );
+      return activeReservations.length > 0 ? activeReservations[0] : null;
+    } else {
+      return null;
+    }
+  }
 
   /**
    * Column containing PaymentCard entity, which represents One-To-One relationship.
