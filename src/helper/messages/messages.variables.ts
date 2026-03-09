@@ -10,6 +10,9 @@ export const unauthorizedErrorMessage =
 export const userIdErrorMessage =
   'No user was found with that id. Please input correct id!';
 
+export const userHasActiveReservationErrorMessage =
+  "User has active reservation and cannot be deleted! Please check user's reservations and try again!";
+
 export const invalidCardCredentialErrorMessage =
   'Given card details are invalid. Please give correct card credentials!';
 
