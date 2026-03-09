@@ -4,7 +4,10 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDTO } from 'src/auth/DTOs/register-user.dto';
 import { hashPassword } from 'src/helper/functions/hash-password.function';
-import { userIdErrorMessage } from 'src/helper/messages/messages.variables';
+import {
+  userHasActiveReservationErrorMessage,
+  userIdErrorMessage,
+} from 'src/helper/messages/messages.variables';
 
 /**
  * This service is responsible for managing user entities.
@@ -74,12 +77,17 @@ export class UsersService {
    * @param userId - Id (UUID) of the desired User Entity to be deleted.
    * @returns Promise containing deleted user
    */
-  async delete(userId: string): Promise<User> {
+  async deleteUser(userId: string) {
     const foundUser = await this.findOne(userId);
 
-    if (foundUser) {
+    // If user with that id is found and doesn't have active reservation, delete it
+    if (foundUser && !foundUser.getActiveReservation) {
       const deletedUsers = await this._userRepository.remove([foundUser]);
       return deletedUsers[0];
+    }
+    // If user with that id is found but has active reservation, throw nestjs error
+    else if (foundUser && foundUser.getActiveReservation) {
+      throw new BadRequestException(userHasActiveReservationErrorMessage);
     } else {
       throw new BadRequestException(userIdErrorMessage);
     }
