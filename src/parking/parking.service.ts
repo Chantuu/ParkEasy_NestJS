@@ -104,18 +104,34 @@ export class ParkingService {
           },
         );
 
-        // Lock RESERVED status if current parking spot is still resserved and reservation for it exists
-        // and is active.
-        const isLocked =
+        // Final calculated status of the parking spot.
+        let finalStatus: ParkingSpotStatus;
+
+        // If incoming status is RESERVED, but there is already active reservation for this parking spot, keep it as RESERVED.
+        if (
           persistedSpot.status === ParkingSpotStatus.RESERVED &&
           foundActiveReservation &&
-          foundActiveReservation.status === ReservationStatus.ACTIVE;
+          foundActiveReservation.status === ReservationStatus.ACTIVE
+        ) {
+          finalStatus = ParkingSpotStatus.RESERVED;
+        }
+        // If incoming status is RESERVED, currently persisted status is RESERVED, but there is no active reservation
+        // for this parking spot, change it to FREE.
+        else if (
+          incomingSpotDTO.status === ParkingSpotStatus.RESERVED &&
+          persistedSpot.status === ParkingSpotStatus.RESERVED &&
+          !foundActiveReservation
+        ) {
+          finalStatus = ParkingSpotStatus.FREE;
+        } else {
+          finalStatus = incomingSpotDTO.status;
+        }
 
         // Return changed parking spot data. If isLocked variable is true, sstatus property stays same
         return {
           ...persistedSpot,
           ...incomingSpotDTO,
-          status: isLocked ? persistedSpot.status : incomingSpotDTO.status,
+          status: finalStatus, // isLocked ? persistedSpot.status : incomingSpotDTO.status,
         };
       }
 
