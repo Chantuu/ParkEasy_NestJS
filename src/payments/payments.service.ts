@@ -174,7 +174,13 @@ export class PaymentsService {
     }
   }
 
-  //TODO: Create jsdoc documentation
+  /**
+   * This method is used to process a payment for the current user.
+   *
+   * @param payDTO - Validated request body containing payment data.
+   * @param currentUser - User currently signed in.
+   * @returns Promise containing the result of the payment operation.
+   */
   async pay(payDTO: PayDTO, currentUser: User) {
     const paymentCard = await this.returnPaymentCardofCurrentUser(currentUser);
 
