@@ -33,11 +33,6 @@ export class ReservationController {
    */
   @Sse()
   async getCurrentActiveReservationStream(@CurrentUser() currentUser: User) {
-    // const currentActiveReservation =
-    //   await this._reservationService.getCurrentActiveReservationStream(
-    //     currentUser,
-    //   );
-    // return successResponse('success', currentActiveReservation);
     return (
       await this._reservationService.getCurrentActiveReservation(currentUser)
     ).pipe(
