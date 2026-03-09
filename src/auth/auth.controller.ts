@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Post,
   Session,
@@ -80,7 +81,7 @@ export class AuthController {
    * This endpoint is used to return currently signed in user data.
    * It is protected by AuthGuard.
    *
-   * @param currentUser - - Current user obtained by Param decorator.
+   * @param currentUser - Current user obtained by Param decorator.
    * @returns Promise with response object containing current user data
    */
   @Get('currentUser')
@@ -96,7 +97,7 @@ export class AuthController {
 
   /**
    * This endpoint is responsible for signing out user from the application.
-   * It must be protected by Auth guard.
+   * It is protected by AuthGuard.
    *
    * @param session - Session object.
    * @returns Response object with success and message fields.
@@ -111,6 +112,32 @@ export class AuthController {
       'success',
       undefined,
       `Successfully logged out user ${fullName}`,
+    );
+  }
+
+  /**
+   * This endpoint is responsible for completely deleting user profile with related information, such as
+   * payment and reservation data.
+   * It is protected by AuthGuard.
+   *
+   * @param currentUser - Current user obtained by Param decorator.
+   * @param session - Session object.
+   * @returns Response object with success and message fields.
+   */
+  @Delete('delete')
+  @UseGuards(AuthGuard)
+  async deleteCurrentUser(
+    @CurrentUser() currentUser: User,
+    @Session() session: Record<string, any>,
+  ) {
+    const deletedUser = await this._authService.deleteCurrentUser(
+      currentUser.id,
+    );
+    session.user = undefined; // Log out user after deleting
+
+    return successResponse(
+      'success',
+      `Successfully deleted user ${deletedUser.fullName}`,
     );
   }
 }
