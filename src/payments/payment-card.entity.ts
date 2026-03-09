@@ -47,6 +47,7 @@ export class PaymentCard {
    */
   @OneToOne(() => User, (user) => user.paymentCard, {
     nullable: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   user: User;

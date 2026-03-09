@@ -55,7 +55,7 @@ export class Reservation {
   /**
    * Column containing User entity, which represents Many-To-One relationship.
    */
-  @ManyToOne(() => User, (user) => user.reservations)
+  @ManyToOne(() => User, (user) => user.reservations, { onDelete: 'CASCADE' })
   user: User;
 
   /**
