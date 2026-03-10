@@ -1,98 +1,160 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+<div align="center">
+  <img src="./readme-assets/project-logo.svg" alt="Logo" width="400">
+  <h1></h1>
+</div>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![Static Badge](https://img.shields.io/badge/NestJS-v11.0.1-red)
+![Static Badge](https://img.shields.io/badge/npm-v11.6.2-green)
+![Static Badge](https://img.shields.io/badge/node-v24.13.0-green)
+![Static Badge](https://img.shields.io/badge/License-MIT-cyan)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Table of Contents
 
-## Description
+- [📍 Overview](#overview)
+- [✨ Features](#-features)
+- [🛠️ Built With](#️-built-with)
+- [📢 Important Notes](#-important-notes)
+- [🚀 Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Environment Variables](#environment-variables)
+  - [Installation](#installation)
+  - [Development Server](#development-server)
+  - [Production Server](#production-server)
+- [🔌 API Endpoints](#-api-endpoints)
+  - [Authentication](#authentication)
+  - [Parking](#parking)
+  - [Payments](#payments)
+  - [Reservation](#reservation)
+- [🤝 Credits](#-credits)
+- [📄 License](#-license)
+- [👨‍💻 Author](#-author)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📍 Overview
 
-## Project setup
+**ParkEasy** is a full-stack application, which gives user data about all parking spots in a parking lot in real time, giving them a peace of mind, when searching for free parking spots, while reducing time spent in that activity. Reservation functionality is also available for users, preventing sudden parking from other drivers to that spot.
+
+This repository contains backend portion of the application, written in NestJS. Main goal of this project is demonstration of scalable, maintainable and reliable API applications using NestJS, while adhering to security standards.
+
+This project was done as part of the **[GITA (Georgia's Innovation and Technology Agency)](https://gita.gov.ge/en)** course, where I was tasked to create prototype of the innovative product.
+
+## ✨ Features
+
+- **Modular Architecture** - Structured using NestJS modules for scalable and maintainable backend development.
+- **RESTful API Design** - Clean and well-structured endpoints for managing parking spaces, reservations, and users.
+- **Authentication System** - Secure user authentication implemented with encrypted passwords and cookie-based sessions.
+- **Data Validation** - Request validation using DTOs with class-validator to ensure reliable and consistent API inputs.
+- **Database Integration** - Persistent data storage using TypeORM with SQLite for simple and efficient database management.
+- **Reservation Management** - Full backend logic for creating, tracking, and managing parking space reservations.
+- **Real-time Sensor Updates** - Server-Sent Events (SSE) support for streaming parking spot status updates from sensors.
+
+## 🛠️ Built With
+
+- **NestJS** - Backend framework providing robust module based architecture.
+- **TypeORM** - Popular object relational mapper for easy database integration.
+- **SQLite** - Simple file based SQL database.
+- **Bcrypt** - Encryption library used for password encryption.
+- **cookie-session** - Library for implementing cookie based authentication.
+- **class-validator** - Library used for validating request DTOs.
+- **class-transformer** - Library used for transforming and serializing objects.
+
+## 📢 Important Notes
+
+Please note, that ESP32 prototype was used for this project, which physically detects 1:42 sized toy cars using HC-SR04 sensors and lights corresponding 5mm RGB LED lamp with corresponding colour.
+
+Detailed information about prototype building will be provided **soon.**
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (`v24.13.0` or later)
+- npm (`v11.6.2` or later)
+- NestJS (`v11.0.1` or later)
+
+### Environment Variables
+
+These environment variables must be set up in `.env`, which is crucial for the application functionality
+
+_Note: This file must be present in project's root directory._
+
+- `SESSION_SECRET` - Specifies secret key for session cookie encoding.
+- `ENCRYPTION_ALGORITHM` - Specifies encryption algorithm for payment card data encoding.
+- `ENCRYPTION_KEY` - Specifies encryption key for payment card data encoding.
+- `ACTIVE_RESERVATION_RATE_PER_MINUTE` - Specifies rate of the reserved parking spot per minute.
+
+### Installation
 
 ```bash
-$ npm install
+# Clone current repository
+git clone https://github.com/Chantuu/ParkEasy_Angular.git
 ```
-
-## Compile and run the project
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Install required dependencies
+npm install
 ```
 
-## Run tests
+### Development Server
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Start the development server in watch mode
+npm run start:dev
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Production Server
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Start the production server
+npm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+`http://localhost:{$Your_Port}/api` will be used as a base URL to send requests to the endpoints.
 
-## Resources
+## 🔌 API Endpoints
 
-Check out a few resources that may come in handy when working with NestJS:
+### Authentication
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- `POST /api/auth/register` - Register new user.
+- `POST /api/auth/login` - Sign in existing user.
+- `GET /api/auth/logout` - Log out currently signed in user.
+- `GET /api/auth/currentUser` - Get currently signed in user.
+- `DELETE /api/auth/delete` - Delete currently signed in user.
 
-## Support
+### Parking
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- `SSE /api/parking/parkingSpots` - SSE endpoint returning current parking spots.
+- `POST /api/parking/sensor` - Save currenty parking data from the sensor.
 
-## Stay in touch
+### Payments
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- `GET /api/payments/paymentCard` - Get currently saved payment card.
+- `POST /api/payments/paymentCard` - Register new payment card for the current user.
+- `DELETE /api/payments/paymentCard` - Delete existing payment for the current user.
+- `POST /api/payments/pay` - Perform payment for the current reservation.
 
-## License
+### Reservation
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `SSE /api/reservation` - SSE endpoint returning currently active reservation.
+- `GET /api/reservation/calculatePrice` - Calculate total price for ending currently active reservation.
+- `GET /api/reservation/inactive` - Return history of old reservations.
+- `POST /api/reservation` - Create new reservation.
+- `PATCH /api/reservation` - Edit current reservation to change it's status.
+
+## 🤝 Credits
+
+This project makes use of the following open-source tools and resources:
+
+- **[NestJS](https://nestjs.com)** – Backend framework used for application creation.
+- **[TypeORM](https://typeorm.io)** – Open-source Relational object mapper for easy database integration.
+- **[SQLite](https://sqlite.org)** – Open-source and easy SQL database.
+- **[Shields.io](https://shields.io/)** – Badges used in the README for versioning and project status.
+
+Special thanks to **[GITA (Georgia's Innovation and Technology Agency)](https://gita.gov.ge/en)** for providing required hardware and help to make this project possible.
+
+## 📄 License
+
+This project is licensed under the **MIT License** - See the [LICENSE](https://github.com/Chantuu/Angular_Weather_Forecast?tab=MIT-1-ov-file) file for details.
+
+## 👨‍💻 Author
+
+Thank you for exploring this project! Check out my other work on [GitHub](https://github.com/Chantuu).
