@@ -34,8 +34,10 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Swagger OpenApi Documentation setup
   const openApiConfig = new DocumentBuilder()
     .setTitle('ParkEasy API')
+    .addCookieAuth('session')
     .setDescription('Backend API of the ParkEasy system.')
     .setVersion('1.0.0')
     .build();
