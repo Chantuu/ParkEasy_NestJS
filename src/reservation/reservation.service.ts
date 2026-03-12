@@ -146,6 +146,7 @@ export class ReservationService {
    *
    * @param currentUser - User currently signed in.
    * @returns Promise containing formatted reservation data list
+   * @throws NotFoundException if reservations marked as COMPLETED or CANCELLED are not found.
    */
   async getInactiveReservation(currentUser: User) {
     const reservationEntityList = await this._reservationRepository.find({
@@ -167,7 +168,7 @@ export class ReservationService {
         )
         .reverse();
     } else {
-      throw new BadRequestException(reservationNotFoundErroMessage);
+      throw new NotFoundException(reservationNotFoundErroMessage);
     }
   }
 
@@ -180,7 +181,7 @@ export class ReservationService {
    * @returns Promise containing newly created active reservation data
    * @throws BadRequestException when active reservation already exists
    * @throws BadRequestException when parking spot is already taken
-   * @throws BadRequestException when parking spot with supplied id does not exist
+   * @throws NotFoundException when parking spot with supplied id does not exist
    */
   async createReservation(
     currentUser: User,
@@ -252,7 +253,7 @@ export class ReservationService {
     }
     // If parking spot with that id does not exist
     else if (!currentParkingSpot) {
-      throw new BadRequestException(parkingSpotIdErrorMessage);
+      throw new NotFoundException(parkingSpotIdErrorMessage);
     } else {
       throw new BadRequestException(activeReservationAlreadyExitsErrorMessage);
     }
@@ -265,7 +266,7 @@ export class ReservationService {
    * @param currentUser - User currently signed in.
    * @param editReservationDTO - Validated request body containing reservation edit data.
    * @returns Promise containing edited reservation data
-   * @throws NotFoundException when activer reservation for current user is not found
+   * @throws NotFoundException when active reservation for current user is not found
    */
   async editActiveReservation(
     currentUser: User,

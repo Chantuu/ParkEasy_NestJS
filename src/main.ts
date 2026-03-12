@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieSession from 'cookie-session';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +33,19 @@ async function bootstrap() {
     origin: 'http://localhost:4200',
     credentials: true,
   });
+
+  // Swagger OpenApi Documentation setup
+  const openApiConfig = new DocumentBuilder()
+    .setTitle('ParkEasy API')
+    .addCookieAuth('session')
+    .setDescription(
+      'REST API for parking reservation management with real-time streaming updates using Server-Sent Events.',
+    )
+    .setVersion('1.0.0')
+    .build();
+  const documentFactory = () =>
+    SwaggerModule.createDocument(app, openApiConfig);
+  SwaggerModule.setup('api/docs', app, documentFactory);
 
   await app.listen(process.env.PORT ?? 3000);
 }

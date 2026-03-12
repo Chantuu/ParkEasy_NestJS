@@ -4,6 +4,7 @@ import { ParkingService } from './parking.service';
 import { SensorDataDTO } from './Dtos/sensor-data.dto';
 import { successResponse } from 'src/helper/functions/success-response.function';
 import { map } from 'rxjs';
+import { ApiCookieAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 /**
  * This controller is responsible for routing and managing all endpoints related to the parking.
@@ -19,6 +20,27 @@ export class ParkingController {
    *
    * @returns List containing data of the available parking spots or empty list
    */
+  @ApiOperation({
+    summary: 'Get all parking spot data.',
+    description:
+      'Get currently available parking spot data list. Please note, that Swagger does not support SSE' +
+      'and you have to test this endpoint manually.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved full parking spot data.',
+    schema: {
+      example: [
+        {
+          id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+          spotName: 'spot-A',
+          status: 'TAKEN',
+          sensorId: 'sensor-01',
+        },
+      ],
+    },
+  })
+  @ApiCookieAuth()
   @Sse('parkingSpots')
   @UseGuards(AuthGuard)
   stream() {
@@ -36,6 +58,28 @@ export class ParkingController {
    * @param sensorDataDTO - Request body containing all parking spots data from sensor.
    * @returns Updated parking spots data for the sensor.
    */
+  @ApiOperation({
+    summary: 'Post parking spot data from sensor.',
+    description:
+      'Save new parking spot data from the sensor and return updated parking spot data.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Parking spot data successfully updated.',
+    schema: {
+      example: {
+        status: 'success',
+        data: [
+          {
+            id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+            spotName: 'spot-A',
+            status: 'TAKEN',
+            sensorId: 'sensor-01',
+          },
+        ],
+      },
+    },
+  })
   @Post('sensor')
   async saveSpotDataFromSensor(@Body() sensorDataDTO: SensorDataDTO) {
     const resultSpotData =

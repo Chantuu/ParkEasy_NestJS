@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AddPaymentCardDTO } from './DTOs/add-payment-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentCard } from './payment-card.entity';
@@ -78,7 +82,7 @@ export class PaymentsService {
    *
    * @param currentUser - User currently signed in.
    * @returns Promise containing current user's payment card data
-   * @throws BadRequestException, when user does not have payment card
+   * @throws NotFoundException, when user does not have payment card
    */
   async getPaymentCard(currentUser: User) {
     const paymentCard = await this.returnPaymentCardofCurrentUser(currentUser);
@@ -98,7 +102,7 @@ export class PaymentsService {
         cardHolderName: paymentCard.cardHolderName,
       };
     } else {
-      throw new BadRequestException(paymentCardNotExistsErrorMessage);
+      throw new NotFoundException(paymentCardNotExistsErrorMessage);
     }
   }
 
@@ -155,7 +159,7 @@ export class PaymentsService {
    *
    * @param currentUser - User currently signed in.
    * @returns Promise containing deleted payment entity
-   * @throws BadRequestException if current user does not have payment card
+   * @throws NotFoundException if current user does not have payment card
    */
   async deletePaymentCard(currentUser: User) {
     const paymentCard = await this.returnPaymentCardofCurrentUser(currentUser);
@@ -170,7 +174,7 @@ export class PaymentsService {
 
       return this.formatPaymentCardData(paymentCard, maskedCardNumber);
     } else {
-      throw new BadRequestException(paymentCardNotExistsErrorMessage);
+      throw new NotFoundException(paymentCardNotExistsErrorMessage);
     }
   }
 
@@ -180,6 +184,9 @@ export class PaymentsService {
    * @param payDTO - Validated request body containing payment data.
    * @param currentUser - User currently signed in.
    * @returns Promise containing the result of the payment operation.
+   * @throws BadRequestException when user does not have sufficient money.
+   * @throws BadRequestException when amount property is not available for completing reservation.
+   * @throws NotFoundException when payment card does not exist.
    */
   async pay(payDTO: PayDTO, currentUser: User) {
     const paymentCard = await this.returnPaymentCardofCurrentUser(currentUser);
@@ -235,7 +242,7 @@ export class PaymentsService {
 
       return responsePaymentTransactionData;
     } else {
-      throw new BadRequestException(paymentCardNotExistsErrorMessage);
+      throw new NotFoundException(paymentCardNotExistsErrorMessage);
     }
   }
 }
