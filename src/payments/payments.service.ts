@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AddPaymentCardDTO } from './DTOs/add-payment-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentCard } from './payment-card.entity';
@@ -98,7 +102,7 @@ export class PaymentsService {
         cardHolderName: paymentCard.cardHolderName,
       };
     } else {
-      throw new BadRequestException(paymentCardNotExistsErrorMessage);
+      throw new NotFoundException(paymentCardNotExistsErrorMessage);
     }
   }
 
@@ -170,7 +174,7 @@ export class PaymentsService {
 
       return this.formatPaymentCardData(paymentCard, maskedCardNumber);
     } else {
-      throw new BadRequestException(paymentCardNotExistsErrorMessage);
+      throw new NotFoundException(paymentCardNotExistsErrorMessage);
     }
   }
 
@@ -235,7 +239,7 @@ export class PaymentsService {
 
       return responsePaymentTransactionData;
     } else {
-      throw new BadRequestException(paymentCardNotExistsErrorMessage);
+      throw new NotFoundException(paymentCardNotExistsErrorMessage);
     }
   }
 }
