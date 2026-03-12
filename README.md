@@ -78,6 +78,7 @@ These environment variables must be set up in `.env`, which is crucial for the a
 
 _Note: This file must be present in project's root directory._
 
+- `FRONTEND_URL` - Specifies base url for frontend application to receive requests. Example: `http://localhost:4200`
 - `SESSION_SECRET` - Specifies secret key for session cookie encoding. Example: `c3aba0042877f23b14d2b4735124TEST`
 - `ENCRYPTION_ALGORITHM` - Specifies encryption algorithm for payment card data encoding. Example: `aes-256-cbc"`
 - `ENCRYPTION_KEY` - Specifies encryption key for payment card data encoding. Example: `c3aba0042877f23b14d2b4735124TEST`
