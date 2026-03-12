@@ -18,12 +18,10 @@ import { successResponse } from 'src/helper/functions/success-response.function'
 import {
   ApiBadRequestResponse,
   ApiCookieAuth,
-  ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ValidationError } from 'class-validator';
 import {
   emailAlreadyExistsErrorMessage,
   unauthorizedErrorMessage,
