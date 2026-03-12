@@ -25,6 +25,7 @@
   - [Parking](#parking)
   - [Payments](#payments)
   - [Reservation](#reservation)
+  - [Swagger Documentation](#swagger-documentation)
 - [🤝 Credits](#-credits)
 - [📄 License](#-license)
 - [👨‍💻 Author](#-author)
@@ -139,6 +140,10 @@ npm run start:prod
 - `GET /api/reservation/inactive` - Return history of old reservations.
 - `POST /api/reservation` - Create new reservation.
 - `PATCH /api/reservation` - Edit current reservation to change it's status.
+
+### Swagger Documentation
+
+- `/api/docs` - Swagger UI documentation.
 
 ## 🤝 Credits
 
