@@ -6,6 +6,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ParkingSpotDto } from './parking-spot.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 /**
  * This DTO class is used to validate ParkingSpotDTO list.
@@ -19,5 +20,8 @@ export class SensorDataDTO {
   @ArrayMinSize(4)
   @ArrayMaxSize(4)
   @Type(() => ParkingSpotDto)
+  @ApiProperty({
+    type: () => [ParkingSpotDto],
+  })
   parkingSpots: ParkingSpotDto[];
 }
