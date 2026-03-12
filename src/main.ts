@@ -4,12 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieSession from 'cookie-session';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { config } from 'process';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   //#region Cookie Session Setup
   const configService = app.get<ConfigService>(ConfigService);
+  const frontendUrl = configService.get<string>('FRONTEND_URL'); // Get url of the frontend application to recieve requests
   const sessionSecret = configService.get<string>('SESSION_SECRET'); // Get Cookie Session Secret Key
 
   if (!sessionSecret) {
@@ -30,8 +32,9 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: frontendUrl,
     credentials: true,
+    httpOnly: true,
   });
 
   // Swagger OpenApi Documentation setup
