@@ -62,7 +62,7 @@ This project was done as part of the **[GITA (Georgia's Innovation and Technolog
 
 Please note, that ESP32 prototype was used for this project, which physically detects 1:42 sized toy cars using HC-SR04 sensors and lights corresponding 5mm RGB LED lamp with corresponding colour.
 
-Detailed information about prototype building will be provided **soon.**
+Detailed information about hardware required for this project can be found [here.](https://github.com/Chantuu/ParkEasy_ESP32)
 
 ## 🚀 Getting Started
 
@@ -78,10 +78,10 @@ These environment variables must be set up in `.env`, which is crucial for the a
 
 _Note: This file must be present in project's root directory._
 
-- `SESSION_SECRET` - Specifies secret key for session cookie encoding.
-- `ENCRYPTION_ALGORITHM` - Specifies encryption algorithm for payment card data encoding.
-- `ENCRYPTION_KEY` - Specifies encryption key for payment card data encoding.
-- `ACTIVE_RESERVATION_RATE_PER_MINUTE` - Specifies rate of the reserved parking spot per minute.
+- `SESSION_SECRET` - Specifies secret key for session cookie encoding. Example: `c3aba0042877f23b14d2b4735124TEST`
+- `ENCRYPTION_ALGORITHM` - Specifies encryption algorithm for payment card data encoding. Example: `aes-256-cbc"`
+- `ENCRYPTION_KEY` - Specifies encryption key for payment card data encoding. Example: `c3aba0042877f23b14d2b4735124TEST`
+- `ACTIVE_RESERVATION_RATE_PER_MINUTE` - Specifies rate of the reserved parking spot per minute. Example: `0.4`
 
 ### Installation
 
@@ -158,7 +158,7 @@ Special thanks to **[GITA (Georgia's Innovation and Technology Agency)](https://
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - See the [LICENSE](https://github.com/Chantuu/Angular_Weather_Forecast?tab=MIT-1-ov-file) file for details.
+This project is licensed under the **MIT License** - See the [LICENSE](./LICENSE) file for details.
 
 ## 👨‍💻 Author
 
