@@ -38,7 +38,9 @@ async function bootstrap() {
   const openApiConfig = new DocumentBuilder()
     .setTitle('ParkEasy API')
     .addCookieAuth('session')
-    .setDescription('Backend API of the ParkEasy system.')
+    .setDescription(
+      'REST API for parking reservation management with real-time streaming updates using Server-Sent Events.',
+    )
     .setVersion('1.0.0')
     .build();
   const documentFactory = () =>
