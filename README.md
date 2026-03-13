@@ -14,6 +14,7 @@
 - [✨ Features](#-features)
 - [🛠️ Built With](#️-built-with)
 - [📢 Important Notes](#-important-notes)
+  - [About Render Spin Down](#about-render-spin-down)
 - [🚀 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Environment Variables](#environment-variables)
@@ -63,6 +64,10 @@ This project was done as part of the **[GITA (Georgia's Innovation and Technolog
 Please note, that ESP32 prototype was used for this project, which physically detects 1:42 sized toy cars using HC-SR04 sensors and lights corresponding 5mm RGB LED lamp with corresponding colour.
 
 Detailed information about hardware required for this project can be found [here.](https://github.com/Chantuu/ParkEasy_ESP32)
+
+### About Render Spin Down
+
+Also note, due this API is hosted on Render's free tier, after 15 minute inactivity server `spins down`, which causes data loss and frontent will struggle connecting to the backend server, before it spins up again.
 
 ## 🚀 Getting Started
 
