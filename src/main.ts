@@ -20,6 +20,8 @@ async function bootstrap() {
     cookieSession({
       keys: [sessionSecret], // Set Cookie Session Secret Key
       maxAge: 24 * 60 * 60 * 1000, // Cookie Session is valid for 24 hours
+      sameSite: 'none', // REQUIRED for cross-site cookies
+      secure: true, // REQUIRED when sameSite = none (HTTPS only)
     }),
   );
   //#endregion
@@ -31,9 +33,8 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: frontendUrl,
+    origin: [frontendUrl],
     credentials: true,
-    httpOnly: true,
   });
 
   // Swagger OpenApi Documentation setup
