@@ -1,5 +1,5 @@
 import { SensorDataDTO } from './Dtos/sensor-data.dto';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ParkingSpot } from './parking-spot.entity';
 import { Repository } from 'typeorm';
@@ -82,76 +82,83 @@ export class ParkingService {
    *
    * @param sensorDataDTO - Validated request body of all parking spots.
    * @returns Updated data list of all parking spots.
+   * @throws BadRequestException on SQLite error
    */
   async saveSpotDataFromSensor(sensorDataDTO: SensorDataDTO) {
-    // Get existing parking spot entities to update
-    const existingSpots = await this.getAllParkingSpots();
+    try {
+      // Get existing parking spot entities to update
+      const existingSpots = await this.getAllParkingSpots();
 
-    // Map them for fast access
-    const existingSpotsMap = new Map(
-      existingSpots.map((spot) => [spot.sensorId, spot]),
-    );
+      // Map them for fast access
+      const existingSpotsMap = new Map(
+        existingSpots.map((spot) => [spot.sensorId, spot]),
+      );
 
-    const spotsToPersist = sensorDataDTO.parkingSpots.map((incomingSpotDTO) => {
-      // Get corresponding existing parking spot if it exists.
-      const persistedSpot = existingSpotsMap.get(incomingSpotDTO.sensorId);
+      const spotsToPersist = sensorDataDTO.parkingSpots.map(
+        (incomingSpotDTO) => {
+          // Get corresponding existing parking spot if it exists.
+          const persistedSpot = existingSpotsMap.get(incomingSpotDTO.sensorId);
 
-      // If this parking spot entity exists
-      if (persistedSpot) {
-        const foundActiveReservation = persistedSpot.reservations.find(
-          (reservation) => {
-            return reservation.status === ReservationStatus.ACTIVE;
-          },
-        );
+          // If this parking spot entity exists
+          if (persistedSpot) {
+            const foundActiveReservation = persistedSpot.reservations.find(
+              (reservation) => {
+                return reservation.status === ReservationStatus.ACTIVE;
+              },
+            );
 
-        // Final calculated status of the parking spot.
-        let finalStatus: ParkingSpotStatus;
+            // Final calculated status of the parking spot.
+            let finalStatus: ParkingSpotStatus;
 
-        // If incoming status is RESERVED, but there is already active reservation for this parking spot, keep it as RESERVED.
-        if (
-          persistedSpot.status === ParkingSpotStatus.RESERVED &&
-          foundActiveReservation &&
-          foundActiveReservation.status === ReservationStatus.ACTIVE
-        ) {
-          finalStatus = ParkingSpotStatus.RESERVED;
-        }
-        // If incoming status is RESERVED, currently persisted status is RESERVED, but there is no active reservation
-        // for this parking spot, change it to FREE.
-        else if (
-          incomingSpotDTO.status === ParkingSpotStatus.RESERVED &&
-          persistedSpot.status === ParkingSpotStatus.RESERVED &&
-          !foundActiveReservation
-        ) {
-          finalStatus = ParkingSpotStatus.FREE;
-        } else {
-          finalStatus = incomingSpotDTO.status;
-        }
+            // If incoming status is RESERVED, but there is already active reservation for this parking spot, keep it as RESERVED.
+            if (
+              persistedSpot.status === ParkingSpotStatus.RESERVED &&
+              foundActiveReservation &&
+              foundActiveReservation.status === ReservationStatus.ACTIVE
+            ) {
+              finalStatus = ParkingSpotStatus.RESERVED;
+            }
+            // If incoming status is RESERVED, currently persisted status is RESERVED, but there is no active reservation
+            // for this parking spot, change it to FREE.
+            else if (
+              incomingSpotDTO.status === ParkingSpotStatus.RESERVED &&
+              persistedSpot.status === ParkingSpotStatus.RESERVED &&
+              !foundActiveReservation
+            ) {
+              finalStatus = ParkingSpotStatus.FREE;
+            } else {
+              finalStatus = incomingSpotDTO.status;
+            }
 
-        // Return changed parking spot data. If isLocked variable is true, sstatus property stays same
-        return {
-          ...persistedSpot,
-          ...incomingSpotDTO,
-          status: finalStatus, // isLocked ? persistedSpot.status : incomingSpotDTO.status,
-        };
-      }
+            // Return changed parking spot data. If isLocked variable is true, sstatus property stays same
+            return {
+              ...persistedSpot,
+              ...incomingSpotDTO,
+              status: finalStatus, // isLocked ? persistedSpot.status : incomingSpotDTO.status,
+            };
+          }
 
-      // Return new parking spot data, if existing one does not exist
-      return incomingSpotDTO;
-    });
+          // Return new parking spot data, if existing one does not exist
+          return incomingSpotDTO;
+        },
+      );
 
-    const formattedResponseData = (
-      await this._parkingSpotRepository.save(spotsToPersist)
-    ).map((updatedSpot) => ({
-      id: updatedSpot.id,
-      spotName: updatedSpot.spotName,
-      status: updatedSpot.status,
-      sensorId: updatedSpot.sensorId,
-    }));
+      const formattedResponseData = (
+        await this._parkingSpotRepository.save(spotsToPersist)
+      ).map((updatedSpot) => ({
+        id: updatedSpot.id,
+        spotName: updatedSpot.spotName,
+        status: updatedSpot.status,
+        sensorId: updatedSpot.sensorId,
+      }));
 
-    // Emit updated data to the BehaviorSubject
-    await this.emitParkingSpot();
+      // Emit updated data to the BehaviorSubject
+      await this.emitParkingSpot();
 
-    return formattedResponseData;
+      return formattedResponseData;
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 
   /**
