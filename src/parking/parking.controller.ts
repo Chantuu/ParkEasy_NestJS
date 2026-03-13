@@ -4,7 +4,12 @@ import { ParkingService } from './parking.service';
 import { SensorDataDTO } from './Dtos/sensor-data.dto';
 import { successResponse } from 'src/helper/functions/success-response.function';
 import { map } from 'rxjs';
-import { ApiCookieAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 /**
  * This controller is responsible for routing and managing all endpoints related to the parking.
@@ -37,6 +42,24 @@ export class ParkingController {
           status: 'TAKEN',
           sensorId: 'sensor-01',
         },
+        {
+          id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+          spotName: 'spot-B',
+          status: 'TAKEN',
+          sensorId: 'sensor-02',
+        },
+        {
+          id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+          spotName: 'spot-C',
+          status: 'TAKEN',
+          sensorId: 'sensor-03',
+        },
+        {
+          id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+          spotName: 'spot-D',
+          status: 'TAKEN',
+          sensorId: 'sensor-04',
+        },
       ],
     },
   })
@@ -64,7 +87,7 @@ export class ParkingController {
       'Save new parking spot data from the sensor and return updated parking spot data.',
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Parking spot data successfully updated.',
     schema: {
       example: {
@@ -76,7 +99,37 @@ export class ParkingController {
             status: 'TAKEN',
             sensorId: 'sensor-01',
           },
+          {
+            id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+            spotName: 'spot-B',
+            status: 'TAKEN',
+            sensorId: 'sensor-02',
+          },
+          {
+            id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+            spotName: 'spot-C',
+            status: 'TAKEN',
+            sensorId: 'sensor-03',
+          },
+          {
+            id: '2e089c6d-6520-407a-ae49-29d8fc4adf10',
+            spotName: 'spot-D',
+            status: 'TAKEN',
+            sensorId: 'sensor-04',
+          },
         ],
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: '',
+    content: {
+      'application/json': {
+        example: {
+          statusCode: 400,
+          message: ['parkingSpots must contain at least 4 elements'],
+          error: 'Bad Request',
+        },
       },
     },
   })
