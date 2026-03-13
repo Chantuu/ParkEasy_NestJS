@@ -4,7 +4,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieSession from 'cookie-session';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { config } from 'process';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -50,6 +49,6 @@ async function bootstrap() {
     SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api/docs', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
