@@ -26,6 +26,8 @@ async function bootstrap() {
   );
   //#endregion
 
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Removes any properties not specified in DTOs
